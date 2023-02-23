@@ -52,7 +52,7 @@ install(FILES
 # Tests
 #########################################
 
-option(BUILDING_TESTS "Build the tests for the test library" ON)
+option(BUILD_TESTS "Build the tests for the test library" ON)
 
 if(BUILD_TESTS)
     enable_testing()
