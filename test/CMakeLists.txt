@@ -12,12 +12,9 @@ target_sources(test-corgi-test
        TestB.cpp
        TestTime.cpp)
 
-if(NOT CorgiTest)
-    #find_package(CorgiTest)
-endif()
 
-target_link_libraries(test-corgi-test CorgiTest)
+target_link_libraries(test-corgi-test corgi-test)
 
 set_property(TARGET test-corgi-test  PROPERTY CXX_STANDARD 20)
 
-#add_test( NAME test-corgi-test COMMAND test-corgi-test)
+add_test( NAME test-corgi-test COMMAND test-corgi-test)
