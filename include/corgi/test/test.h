@@ -24,15 +24,15 @@
 */
 namespace corgi { namespace test {
 
-using String = std::string;
-template<class T> using UniquePtr = std::unique_ptr<T>;
-
-class Test;
+template<class T> using unique_ptr = std::unique_ptr<T>;
+template<class T> using vector = std::vector<T>;
+template<class T, class U> using map = std::map<T,U>;
+using string = std::string;
 
 namespace detail
 {
     inline void log_failed_functions();
-    template<class T> inline int register_fixture(const String& class_name, const String& test_name);
+    template<class T> inline int register_fixture(const string& class_name, const string& test_name);
 }
 
 /*!
@@ -41,7 +41,7 @@ namespace detail
 class Test
 {
     friend void detail::log_failed_functions();
-    template<class T> friend  int detail::register_fixture(const String& class_name, const String& test_name);
+    template<class T> friend int detail::register_fixture(const string& class_name, const string& test_name);
 
     friend void run_fixtures();
 
@@ -60,8 +60,8 @@ public:
 
 private:
 
-    String _class_name;
-    String _test_name;
+    string _class_name;
+    string _test_name;
     
     /*!
      * @brief Overriden by the TEST_F macro
@@ -112,16 +112,14 @@ public:
 };
 
 // These functions allows us to write equals(4) instead of Equals<int>(4) 
-template<class T> UniquePtr<Equals<T>> equals(T val){return std::make_unique<Equals<T>>(val);}
-template<class T> UniquePtr<NonEquals<T>> non_equals(T val){ return std::make_unique<NonEquals<T>>(val); }
-template<class T> UniquePtr<AlmostEquals<T>> almost_equals(T val, T precision){return std::make_unique<AlmostEquals<T>>(val, precision);}
+template<class T> unique_ptr<Equals<T>> equals(T val){return std::make_unique<Equals<T>>(val);}
+template<class T> unique_ptr<NonEquals<T>> non_equals(T val){ return std::make_unique<NonEquals<T>>(val); }
+template<class T> unique_ptr<AlmostEquals<T>> almost_equals(T val, T precision){return std::make_unique<AlmostEquals<T>>(val, precision);}
 
 namespace detail 
 {
 // Typedef/Using/Classes
 using TestFunctionPointer = void(*)();
-template<class T> using Vector = std::vector<T>;
-template<class T, class U> using Map = std::map<T,U>;
 
 enum class ConsoleColor
 {
@@ -132,30 +130,30 @@ class TestFunction
 {
 public:
 
-    TestFunction(TestFunctionPointer ptr, const String& name, const String& group):
+    TestFunction(TestFunctionPointer ptr, const string& name, const string& group):
         pointer(ptr),
         name(name),
         group(group){}
 
     TestFunctionPointer pointer;
-    String name;
-    String group;
-    String file;
+    string name;
+    string group;
+    string file;
     int                 line;
 };
 
 // Variables 
 
-inline Map<String, Vector<TestFunction>> map_test_functions;
-inline Map<String, Vector<std::unique_ptr<Test>>> fixtures_map;
-inline Vector<Test*> failed_fixtures;
-inline Vector<TestFunction> failed_functions;
+inline map<string, vector<TestFunction>> map_test_functions;
+inline map<string, vector<std::unique_ptr<Test>>> fixtures_map;
+inline vector<Test*> failed_fixtures;
+inline vector<TestFunction> failed_functions;
 
 inline int error{0};
 
 inline ConsoleColor current_color{ ConsoleColor::White};
 
-const inline std::map<ConsoleColor,String> color_code // can't constexpr sadly
+const inline std::map<ConsoleColor,string> color_code // can't constexpr sadly
 {
     {ConsoleColor::Black,"30m"}, 
     {ConsoleColor::Red, "31m"},
@@ -183,17 +181,17 @@ const inline std::map<ConsoleColor,int> win_color_code
 /*!
  * @brief Just a shortcut so I don't have to write std::cout<< text << "\n" all the time
  */
-inline void write_line(const String& str)
+inline void write_line(const string& str)
 {
     std::cout<<"\033[0;"<<color_code.at(current_color)<<str.c_str()<<"\033[0m"<<std::endl;
 }
 
-inline void write(const String& str)
+inline void write(const string& str)
 {
     std::cout<<"\033[0;"<<color_code.at(current_color)<<str.c_str()<<"\033[0m"<<std::flush;
 }
 
-inline void write(const String& str, ConsoleColor code_color)
+inline void write(const string& str, ConsoleColor code_color)
 {
     current_color = code_color;
     write(str);
@@ -204,14 +202,14 @@ inline void write(const String& str, ConsoleColor code_color)
  * @param line         Contains the text to be displayed
  * @param console_color   Contains a code corresponding to a color
  */
-inline void write_line(const String& line, ConsoleColor console_color)
+inline void write_line(const string& line, ConsoleColor console_color)
 {
     current_color = console_color;
     write_line(line);
 }
 
 template<class T>
-void log_test_error(const T val, const String& value_name, const String& expected, const char* file, int line)
+void log_test_error(const T val, const string& value_name, const string& expected, const char* file, int line)
 {
     write_line("\n        ! Error : ",ConsoleColor::Red);
     write("            * file :     ", ConsoleColor::Cyan);
@@ -235,13 +233,11 @@ void log_test_error(const T val, const String& value_name, const String& expecte
 /*!
  * @brief 
  */
-template<class T, class U>  // Maybe the function signature could be smaller 
-void assert_that_(T val, U&& checker,const String& value, const String& expected, const char* file, int line)
+template<class T, class U> 
+void assert_that_(T val, U&& checker,const string& value, const string& expected, const char* file, int line)
 {
     if (checker->run(val) == false)
-    {
         log_test_error(val, value, expected, file, line);
-    }
 }
 
 /*!
@@ -259,7 +255,7 @@ void assert_that_(T val, U&& checker,const String& value, const String& expected
  *  @param function_name    Second parameter of the TEST macro. Correspond to the 
  *  function name.
  */
-inline int register_function(TestFunctionPointer func_ptr,const String& function, const String& group)
+inline int register_function(TestFunctionPointer func_ptr,const string& function, const string& group)
 {
     map_test_functions[group].emplace_back(func_ptr,function,group);
     return 0; // We only return a value because of the affectation trick in the macro
@@ -269,7 +265,7 @@ inline int register_function(TestFunctionPointer func_ptr,const String& function
  *   @brief Register a fixture object
  */
 template<class T>
-inline int register_fixture(const String& class_name, const String& test_name)
+inline int register_fixture(const string& class_name, const string& test_name)
 {
     try
     {
@@ -292,16 +288,12 @@ inline int register_fixture(const String& class_name, const String& test_name)
  */
 inline void log_failed_functions()
 {
-    for (const auto& t : detail::failed_functions)
-    {
-        write_line("      * Function "+ t.group + "::" + t.name+" failed", ConsoleColor::Red);
-    }
+    for (const auto& test_function : detail::failed_functions)
+        write_line("      * Function "+ test_function.group + "::" + test_function.name+" failed", ConsoleColor::Red);
 
-    for(const auto& t : detail::failed_fixtures)
-    {
-        write_line("      * "+t->_class_name+"::"+t->_test_name+" failed", ConsoleColor::Red);
-    }
-}        
+    for(const auto& test_function : detail::failed_fixtures)
+        write_line("      * "+test_function->_class_name+"::"+test_function->_test_name+" failed", ConsoleColor::Red);
+}
 
 /*!
  * @brief  Logs that we successfully pass every test
@@ -328,13 +320,13 @@ inline void log_failure()
  *   *   Text  *  
  *   ***********
  */
-inline void write_title(const String& text)
+inline void write_title(const string& text)
 {
     const int max_column = 78;
 
-    write_line(String(max_column,'*'), ConsoleColor::Green);
-    write_line("*    "+text+String(max_column-1 - (5+text.size()), ' ')+"*");
-    write_line(String(max_column,'*'));
+    write_line(string(max_column,'*'), ConsoleColor::Green);
+    write_line("*    "+text+string(max_column-1 - (5+text.size()), ' ')+"*");
+    write_line(string(max_column,'*'));
 }
 
 /*!
@@ -342,7 +334,7 @@ inline void write_title(const String& text)
  *   @param  group_name  Name of the tested group 
  *   @param  group_size  How many test are inside the group
  */
-inline void log_start_group(const String& group_name, size_t group_size)
+inline void log_start_group(const string& group_name, size_t group_size)
 {
     write_title("Running " + std::to_string(group_size) + " tests grouped in " + group_name);
 }
@@ -354,7 +346,7 @@ inline void log_start_group(const String& group_name, size_t group_size)
  * @param count        Counter used to know on which test from group we're (like
  * the first one, the second one ? etc
  */
-inline void log_start_test(const String& test_name, const String& group_name, size_t group_size, size_t count)
+inline void log_start_test(const string& test_name, const string& group_name, size_t group_size, size_t count)
 {
     write("  * Running ", ConsoleColor::Cyan);
     write( group_name+"."+test_name, ConsoleColor::Yellow);
@@ -447,6 +439,83 @@ inline void run_functions()
     }
 }
 
+struct benchmark
+{
+    std::function<void()> first_function;
+    std::string first_function_name;
+    std::function<void()> second_function;
+    std::string second_function_name;
+    int repetition;
+    std::string name;
+};
+
+static inline std::vector<benchmark> benchmarks;
+
+inline void add_benchmark(std::string name, int repetition, void(*first_function)(), const std::string& first_function_name,  void(*second_function)(), const std::string & second_function_name)
+{
+    benchmarks.emplace_back(first_function, first_function_name, second_function, second_function_name, repetition, name);
+}
+
+struct benchmark_function_result
+{
+    long long total_time=0;
+    long long max_time= std::numeric_limits<long long>::min();
+    long long min_time= std::numeric_limits<long long>::max();
+};
+
+struct benchmark_result
+{
+    benchmark_function_result first_function_results;
+    benchmark_function_result second_function_results;
+};
+
+inline benchmark_function_result run_benchmark_function(std::function<void()> function, int repetition)
+{
+    benchmark_function_result result;
+
+    for(int i = 0 ; i< repetition; i++)
+    {
+        auto time = function_time(function);
+        result.total_time += time;
+
+        result.max_time = std::max(result.max_time, time);
+        result.min_time = std::min(result.min_time, time);
+    }
+    
+    corgi::test::detail::write_line("\t* Total Time : "+ std::to_string(static_cast<double>(result.total_time)/1000.0)+" ms",corgi::test::detail::ConsoleColor::Magenta);
+    corgi::test::detail::write_line("\t* Max Time : "+ std::to_string(static_cast<double>(result.max_time)/1000.0)+" ms",corgi::test::detail::ConsoleColor::Magenta);
+    corgi::test::detail::write_line("\t* Min Time : "+ std::to_string(static_cast<double>(result.min_time)/1000.0)+" ms",corgi::test::detail::ConsoleColor::Magenta);
+    corgi::test::detail::write_line("\t* Mean Time : "+ std::to_string(static_cast<double>(result.total_time/repetition)/1000.0)+" ms",corgi::test::detail::ConsoleColor::Magenta);
+    return result;
+}
+inline benchmark_result run_benchmark(benchmark& benchmark)
+{
+    benchmark_result result;
+    corgi::test::detail::write("    * Benchmarking function "+ benchmark.first_function_name+"\n", corgi::test::detail::ConsoleColor::Green);
+    result.first_function_results = run_benchmark_function(benchmark.first_function, benchmark.repetition);
+    corgi::test::detail::write("    * Benchmarking function "+benchmark.second_function_name+"\n", corgi::test::detail::ConsoleColor::Green);
+    result.second_function_results=run_benchmark_function(benchmark.second_function, benchmark.repetition);
+
+    if(result.first_function_results.total_time>= result.second_function_results.total_time)
+        corgi::test::detail::write("    *"+benchmark.first_function_name+" was faster\n", corgi::test::detail::ConsoleColor::Cyan);
+    else
+        corgi::test::detail::write("    *"+benchmark.second_function_name+" was faster\n", corgi::test::detail::ConsoleColor::Cyan);
+    
+    return result;
+}
+
+inline void run_benchmarks()
+{
+    corgi::test::detail::write_title("Running benchmarks");
+    for(auto benchmark : benchmarks)
+    {
+        corgi::test::detail::write("  * Running ", corgi::test::detail::ConsoleColor::Cyan);
+        corgi::test::detail::write(benchmark.name+"\n", corgi::test::detail::ConsoleColor::Yellow);
+        auto results = run_benchmark(benchmark);
+    }
+}
+
+
 /*!
  * @brief      Run all the tests defined by the user 
  * @details    Must be called from main. Will fire all the test the user defined
@@ -460,6 +529,7 @@ inline int run_all()
         detail::write_line("RUN ALL THE THINGS!!!", detail::ConsoleColor::Green);
         run_fixtures();
         run_functions();
+        run_benchmarks();
         detail::log_results();
     }
     catch(const std::exception& e)
@@ -468,6 +538,8 @@ inline int run_all()
     }
     return detail::error;   // Must return 0 to pass
 }
+
+
 
 /*!
  *   @brief  Define a new Fixture
@@ -503,7 +575,7 @@ void class_name##test_name::run()
  */
 #define TEST(group_name,function_name)\
 void group_name##_##function_name();   \
-static int var##group_name##function_name = corgi::test::detail::register_function(&group_name##_##function_name, #function_name,#group_name); \
+static int var##group_name##function_name = corgi::test::detail::register_function(&group_name##_##function_name, #function_name, #group_name); \
 void group_name##_##function_name()
 
 #define assert_that(value, expected)  \
