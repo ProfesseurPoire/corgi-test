@@ -30,7 +30,7 @@ jobs:
         run  : cd build  && make 
 
       - name : Run Cppcheck
-        run  : cppcheck --force .
+        run  : cppcheck --force . -ibuild/
 
       - name : Run CTest
         run  : cd build && ctest --verbose
