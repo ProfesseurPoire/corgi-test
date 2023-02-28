@@ -150,10 +150,7 @@ unique_ptr<AlmostEquals<T>> almost_equals(T val, T precision)
 
 namespace detail
 {
-// Typedef/Using/Classes
-using TestFunctionPointer = void (*)();
-
-enum class ConsoleColor
+enum class color
 {
     Black,
     Red,
@@ -174,21 +171,19 @@ inline map<string, map<string, std::function<void()>>> failed_functions;
 
 inline int error {0};
 
-inline ConsoleColor current_color {ConsoleColor::White};
+inline color current_color {color::White};
 
-const inline std::map<ConsoleColor, string> color_code    // can't constexpr sadly
+const inline std::map<color, string> color_code    // can't constexpr sadly
     {
-        {ConsoleColor::Black, "30m"}, {ConsoleColor::Red, "31m"},
-        {ConsoleColor::Green, "32m"}, {ConsoleColor::Yellow, "33m"},
-        {ConsoleColor::Blue, "34m"},  {ConsoleColor::Magenta, "35m"},
-        {ConsoleColor::Cyan, "36m"},  {ConsoleColor::White, "37m"},
+        {color::Black, "30m"},  {color::Red, "31m"},   {color::Green, "32m"},
+        {color::Yellow, "33m"}, {color::Blue, "34m"},  {color::Magenta, "35m"},
+        {color::Cyan, "36m"},   {color::White, "37m"},
     };
 
 // Some code are probably wrong here
-const inline std::map<ConsoleColor, int> win_color_code {
-    {ConsoleColor::Black, 1},   {ConsoleColor::Red, 4},   {ConsoleColor::Green, 2},
-    {ConsoleColor::Yellow, 14}, {ConsoleColor::Blue, 5},  {ConsoleColor::Magenta, 6},
-    {ConsoleColor::Cyan, 3},    {ConsoleColor::White, 8},
+const inline std::map<color, int> win_color_code {
+    {color::Black, 1}, {color::Red, 4},     {color::Green, 2}, {color::Yellow, 14},
+    {color::Blue, 5},  {color::Magenta, 6}, {color::Cyan, 3},  {color::White, 8},
 };
 
 /*!
@@ -206,7 +201,7 @@ inline void write(const string& str)
               << std::flush;
 }
 
-inline void write(const string& str, ConsoleColor code_color)
+inline void write(const string& str, color code_color)
 {
     current_color = code_color;
     write(str);
@@ -217,7 +212,7 @@ inline void write(const string& str, ConsoleColor code_color)
  * @param line         Contains the text to be displayed
  * @param console_color   Contains a code corresponding to a color
  */
-inline void write_line(const string& line, ConsoleColor console_color)
+inline void write_line(const string& line, color console_color)
 {
     current_color = console_color;
     write_line(line);
@@ -230,22 +225,22 @@ void log_test_error(const T       val,
                     const char*   file,
                     int           line)
 {
-    write_line("\n        ! Error : ", ConsoleColor::Red);
-    write("            * file :     ", ConsoleColor::Cyan);
-    write_line(file, ConsoleColor::Yellow);
-    write("            * line :     ", ConsoleColor::Cyan);
-    write_line(std::to_string(line), ConsoleColor::Magenta);
-    write("            * Check if ", ConsoleColor::Cyan);
-    write("\"" + value_name + "\" ", ConsoleColor::Magenta);
+    write_line("\n        ! Error : ", color::Red);
+    write("            * file :     ", color::Cyan);
+    write_line(file, color::Yellow);
+    write("            * line :     ", color::Cyan);
+    write_line(std::to_string(line), color::Magenta);
+    write("            * Check if ", color::Cyan);
+    write("\"" + value_name + "\" ", color::Magenta);
     write("== ");
     write_line("\"" + expected + "\"");
-    write("                * Expected : ", ConsoleColor::Cyan);
-    write_line(expected, ConsoleColor::Magenta);
-    write("                * Value is : ", ConsoleColor::Cyan);
+    write("                * Expected : ", color::Cyan);
+    write_line(expected, color::Magenta);
+    write("                * Value is : ", color::Cyan);
 
     std::stringstream ss;
     ss << val;
-    write_line(ss.str(), ConsoleColor::Magenta);
+    write_line(ss.str(), color::Magenta);
     error += 1;
 }
 
@@ -279,9 +274,8 @@ void assert_that_(T             val,
  *  @param function_name    Second parameter of the TEST macro. Correspond to the 
  *  function name.
  */
-inline int register_function(TestFunctionPointer func_ptr,
-                             const string&       function,
-                             const string&       group)
+inline int
+register_function(void (*func_ptr)(), const string& function, const string& group)
 {
     map_test_functions[group][function] = func_ptr;
     return 0;    // We only return a value because of the affectation trick in the macro
@@ -320,12 +314,12 @@ inline void log_failed_functions()
         {
             write_line("      * Function " + group_name + "::" + function_name +
                            " failed",
-                       ConsoleColor::Red);
+                       color::Red);
 
             for(const auto& test_function : detail::failed_fixtures)
                 write_line("      * " + test_function->_class_name +
                                "::" + test_function->_test_name + " failed",
-                           ConsoleColor::Red);
+                           color::Red);
         }
     }
 }
@@ -335,7 +329,7 @@ inline void log_failed_functions()
  */
 inline void log_success()
 {
-    write_line("    * Every test passed", ConsoleColor::Green);
+    write_line("    * Every test passed", color::Green);
 }
 
 /*!
@@ -343,30 +337,30 @@ inline void log_success()
  */
 inline void log_failure()
 {
-    write_line("    Error : Some test failed to pass", ConsoleColor::Red);
-    write_line("    Logging the Functions that failed", ConsoleColor::Cyan);
+    write_line("    Error : Some test failed to pass", color::Red);
+    write_line("    Logging the Functions that failed", color::Cyan);
     log_failed_functions();
 }
 
 /*!
  *   @brief  Write an header in the console
  *   @detail Just write something in that way inside the console
- *   ***********
- *   *   Text  *  
- *   ***********
+ *   +---------+
+ *   |   Text  |  
+ *   +---------+
  */
 inline void write_title(const string& text)
 {
     const int max_column = 78;
 
-    write("+", ConsoleColor::Green);
-    write(string(max_column - 2, '-'), ConsoleColor::Green);
+    write("+", color::Green);
+    write(string(max_column - 2, '-'));
     write("+\n");
 
     write_line("|    " + text + string(max_column - 1 - (5 + text.size()), ' ') + "|");
 
     write("+");
-    write(string(max_column - 2, '-'), ConsoleColor::Green);
+    write(string(max_column - 2, '-'));
     write("+\n");
 }
 
@@ -393,11 +387,10 @@ inline void log_start_test(const string& test_name,
                            size_t        group_size,
                            size_t        count)
 {
-    write("  * Running ", ConsoleColor::Cyan);
-    write(group_name + "." + test_name, ConsoleColor::Yellow);
-    write(" (" + std::to_string(count) + "/" + std::to_string(group_size) + ")",
-          ConsoleColor::Cyan);
-    std::cout << std::endl;
+    write("  * Running ", color::Cyan);
+    write(group_name + "." + test_name, color::Yellow);
+    write(" (" + std::to_string(count) + "/" + std::to_string(group_size) + ")\n",
+          color::Cyan);
 }
 
 /*!
@@ -407,22 +400,12 @@ inline void log_test_success(long long time)
 {
     write_line("       Passed in " + std::to_string(static_cast<double>(time) / 1000.0) +
                    " ms",
-               ConsoleColor::Green);
-}
-
-/*!
- * @brief  Logs all the results
- */
-inline void log_results()
-{
-    write_title("Results");
-    // Log success or failure depending on the error count
-    (detail::error == 0) ? detail::log_success() : detail::log_failure();
+               color::Green);
 }
 }    // namespace detail
 
 // register the time it takes for a function to run
-inline long long function_time(std::function<void()> fun)
+inline auto function_time(std::function<void()> fun) -> long long
 {
     const auto start = std::chrono::high_resolution_clock::now();
     fun();
@@ -455,9 +438,7 @@ inline void run_fixtures()
             test->tear_down();
 
             if(error_value == detail::error)
-            {
                 detail::log_test_success(time);
-            }
             else
             {
                 //detail::get_failed_fixtures().push_back(test_object);
@@ -550,20 +531,20 @@ inline benchmark_function_result run_benchmark_function(std::function<void()> fu
     corgi::test::detail::write_line(
         "\t* Total Time : " +
             std::to_string(static_cast<double>(result.total_time) / 1000.0) + " ms",
-        corgi::test::detail::ConsoleColor::Magenta);
+        corgi::test::detail::color::Magenta);
     corgi::test::detail::write_line(
         "\t* Max Time : " +
             std::to_string(static_cast<double>(result.max_time) / 1000.0) + " ms",
-        corgi::test::detail::ConsoleColor::Magenta);
+        corgi::test::detail::color::Magenta);
     corgi::test::detail::write_line(
         "\t* Min Time : " +
             std::to_string(static_cast<double>(result.min_time) / 1000.0) + " ms",
-        corgi::test::detail::ConsoleColor::Magenta);
+        corgi::test::detail::color::Magenta);
     corgi::test::detail::write_line(
         "\t* Mean Time : " +
             std::to_string(static_cast<double>(result.total_time / repetition) / 1000.0) +
             " ms",
-        corgi::test::detail::ConsoleColor::Magenta);
+        corgi::test::detail::color::Magenta);
     return result;
 }
 inline void run_benchmark(benchmark& benchmark)
@@ -571,12 +552,12 @@ inline void run_benchmark(benchmark& benchmark)
     benchmark_result result;
     corgi::test::detail::write("    * Benchmarking function " +
                                    benchmark.first_function_name + "\n",
-                               corgi::test::detail::ConsoleColor::Green);
+                               corgi::test::detail::color::Green);
     result.first_function_results =
         run_benchmark_function(benchmark.first_function, benchmark.repetition);
     corgi::test::detail::write("    * Benchmarking function " +
                                    benchmark.second_function_name + "\n",
-                               corgi::test::detail::ConsoleColor::Green);
+                               corgi::test::detail::color::Green);
     result.second_function_results =
         run_benchmark_function(benchmark.second_function, benchmark.repetition);
 
@@ -584,22 +565,24 @@ inline void run_benchmark(benchmark& benchmark)
        result.second_function_results.total_time)
         corgi::test::detail::write("    *" + benchmark.first_function_name +
                                        " was faster\n",
-                                   corgi::test::detail::ConsoleColor::Cyan);
+                                   corgi::test::detail::color::Cyan);
     else
         corgi::test::detail::write("    *" + benchmark.second_function_name +
                                        " was faster\n",
-                                   corgi::test::detail::ConsoleColor::Cyan);
+                                   corgi::test::detail::color::Cyan);
 }
 
 inline void run_benchmarks()
 {
+    if(benchmarks.empty())
+        return;
+
     corgi::test::detail::write_title("Running benchmarks");
     for(auto benchmark : benchmarks)
     {
-        corgi::test::detail::write("  * Running ",
-                                   corgi::test::detail::ConsoleColor::Cyan);
+        corgi::test::detail::write("  * Running ", corgi::test::detail::color::Cyan);
         corgi::test::detail::write(benchmark.name + "\n",
-                                   corgi::test::detail::ConsoleColor::Yellow);
+                                   corgi::test::detail::color::Yellow);
         run_benchmark(benchmark);
     }
 }
@@ -617,7 +600,9 @@ inline int run_all()
         run_fixtures();
         run_functions();
         run_benchmarks();
-        detail::log_results();
+        corgi::test::detail::write_title("Results");
+        (detail::error == 0) ? corgi::test::detail::log_success() :
+                               corgi::test::detail::log_failure();
     }
     catch(const std::exception& e)
     {
