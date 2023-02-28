@@ -4,14 +4,13 @@ project(corgi-test VERSION 1.0.0)
 
 set(CMAKE_DEBUG_POSTFIX d)
 
-# We'll install the library in lib64 if we're in x64, in lib otherwise
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(arch_suffix "")
-else()
-    set(arch_suffix "64")
-endif()
-
 add_library(${PROJECT_NAME} INTERFACE)
+
+if(MSVC)
+target_compile_options(${PROJECT_NAME} INTERFACE -W4 -WX)
+else()
+target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Werror)
+endif()
 
 target_include_directories(${PROJECT_NAME}
 INTERFACE 
