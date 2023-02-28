@@ -126,9 +126,9 @@ public:
     {
         return (this->_val1 > (val2 - precision)) && (this->_val1 < (val2 + precision));
     }
-
-    T precision;
+	
     T _val1;
+    T precision;
 };
 
 // These functions allows us to write equals(4) instead of Equals<int>(4)
