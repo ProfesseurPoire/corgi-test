@@ -14,15 +14,13 @@ endif()
 
 target_include_directories(${PROJECT_NAME}
 INTERFACE 
-"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>"
-"$<INSTALL_INTERFACE:include>")
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+$<INSTALL_INTERFACE:include>)
 
-# Targets we want to export and where
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
     LIBRARY     DESTINATION lib
     RUNTIME     DESTINATION bin)
 
-# We move the include files to their destination 
 install(DIRECTORY include DESTINATION ./)
 
 install(
@@ -47,10 +45,7 @@ install(FILES
         DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
-#########################################
 # Tests
-#########################################
-
 option(BUILD_TESTS "Build the tests for the test library" ON)
 
 if(BUILD_TESTS)
