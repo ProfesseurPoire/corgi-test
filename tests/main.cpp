@@ -20,7 +20,11 @@ int main()
     std::generate(v2.begin(), v2.end(), std::rand);
 
     // I'm considering going this way instead of the TEST macro
-    corgi::test::add_benchmark("first_benchmark", 10, first_function,"small vector", second_function,"big_vector");
+    corgi::test::add_benchmark("first_benchmark", 10, first_function, "small vector",
+                               second_function, "big_vector");
+
+    corgi::test::add_test("group_test", "name_test",
+                          []() -> void { assert_that(true, corgi::test::equals(true)); });
 
     return corgi::test::run_all();
 }

@@ -80,8 +80,8 @@ template<class T>
 class Equals
 {
 public:
-    Equals(const T v1)
-        : _val1(v1)
+    Equals(const T vv1)
+        : _val1(vv1)
     {
     }
 
@@ -126,7 +126,7 @@ public:
     {
         return (this->_val1 > (val2 - precision)) && (this->_val1 < (val2 + precision));
     }
-	
+
     T _val1;
     T precision;
 };
@@ -165,29 +165,12 @@ enum class ConsoleColor
     White
 };
 
-class TestFunction
-{
-public:
-    TestFunction(TestFunctionPointer ptr, const string& name, const string& group)
-        : pointer(ptr)
-        , name(name)
-        , group(group)
-    {
-    }
-
-    TestFunctionPointer pointer;
-    string              name;
-    string              group;
-    string              file;
-    int                 line;
-};
-
 // Variables
 
-inline map<string, vector<TestFunction>>          map_test_functions;
-inline map<string, vector<std::unique_ptr<Test>>> fixtures_map;
-inline vector<Test*>                              failed_fixtures;
-inline vector<TestFunction>                       failed_functions;
+inline map<string, map<string, std::function<void()>>> map_test_functions;
+inline map<string, vector<std::unique_ptr<Test>>>      fixtures_map;
+inline vector<Test*>                                   failed_fixtures;
+inline map<string, map<string, std::function<void()>>> failed_functions;
 
 inline int error {0};
 
@@ -300,7 +283,7 @@ inline int register_function(TestFunctionPointer func_ptr,
                              const string&       function,
                              const string&       group)
 {
-    map_test_functions[group].emplace_back(func_ptr, function, group);
+    map_test_functions[group][function] = func_ptr;
     return 0;    // We only return a value because of the affectation trick in the macro
 }
 
@@ -331,15 +314,20 @@ inline int register_fixture(const string& class_name, const string& test_name)
  */
 inline void log_failed_functions()
 {
-    for(const auto& test_function : detail::failed_functions)
-        write_line("      * Function " + test_function.group + "::" + test_function.name +
-                       " failed",
-                   ConsoleColor::Red);
+    for(const auto& [group_name, group] : detail::failed_functions)
+    {
+        for(const auto& [function_name, function] : group)
+        {
+            write_line("      * Function " + group_name + "::" + function_name +
+                           " failed",
+                       ConsoleColor::Red);
 
-    for(const auto& test_function : detail::failed_fixtures)
-        write_line("      * " + test_function->_class_name +
-                       "::" + test_function->_test_name + " failed",
-                   ConsoleColor::Red);
+            for(const auto& test_function : detail::failed_fixtures)
+                write_line("      * " + test_function->_class_name +
+                               "::" + test_function->_test_name + " failed",
+                           ConsoleColor::Red);
+        }
+    }
 }
 
 /*!
@@ -371,9 +359,15 @@ inline void write_title(const string& text)
 {
     const int max_column = 78;
 
-    write_line(string(max_column, '*'), ConsoleColor::Green);
-    write_line("*    " + text + string(max_column - 1 - (5 + text.size()), ' ') + "*");
-    write_line(string(max_column, '*'));
+    write("+", ConsoleColor::Green);
+    write(string(max_column - 2, '-'), ConsoleColor::Green);
+    write("+\n");
+
+    write_line("|    " + text + string(max_column - 1 - (5 + text.size()), ' ') + "|");
+
+    write("+");
+    write(string(max_column - 2, '-'), ConsoleColor::Green);
+    write("+\n");
 }
 
 /*!
@@ -475,24 +469,23 @@ inline void run_fixtures()
 
 inline void run_functions()
 {
-    for(auto test : detail::map_test_functions)
+    for(const auto& [group_name, group] : detail::map_test_functions)
     {
-        auto total_test = detail::map_test_functions[test.first].size();
-        detail::log_start_group(test.first, total_test);
-
+        auto total_test = group.size();
+        detail::log_start_group(group_name, total_test);
         int test_index {1};
 
-        for(auto test_function : test.second)
+        for(const auto& [test_name, test] : group)
         {
-            detail::log_start_test(test_function.name, test_function.group, total_test,
-                                   test_index++);
+            detail::log_start_test(test_name, group_name, total_test, test_index++);
 
             int  error_value = detail::error;
-            auto time        = function_time(test_function.pointer);
+            auto time        = function_time(test);
 
-            (error_value == detail::error) ?
-                detail::log_test_success(time) :
-                detail::failed_functions.push_back(test_function);
+            if(error_value == detail::error)
+                detail::log_test_success(time);
+            else
+                detail::failed_functions[group_name].emplace(test_name, test);
         }
     }
 }
@@ -518,6 +511,13 @@ inline void add_benchmark(std::string name,
 {
     benchmarks.emplace_back(first_function, first_function_name, second_function,
                             second_function_name, repetition, name);
+}
+
+inline void add_test(const std::string&    group_name,
+                     const std::string&    test_name,
+                     std::function<void()> lambda)
+{
+    corgi::test::detail::map_test_functions[group_name].emplace(test_name, lambda);
 }
 
 struct benchmark_function_result
@@ -614,7 +614,6 @@ inline int run_all()
 {
     try
     {
-        detail::write_line("RUN ALL THE THINGS!!!", detail::ConsoleColor::Green);
         run_fixtures();
         run_functions();
         run_benchmarks();
