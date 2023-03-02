@@ -57,7 +57,7 @@ jobs:
       - name : Run CTest
         run  : cd build && ctest -C Debug --verbose
 
-  ubuntu-build:
+  macos-build:
     name    : MacOS Build
     runs-on : macos-latest
     steps:
