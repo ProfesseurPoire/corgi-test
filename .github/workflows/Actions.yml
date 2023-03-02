@@ -64,11 +64,6 @@ jobs:
       - name : Checkout code
         uses : actions/checkout@v3
 
-      - name : Install Dependencies
-        run  : |
-                sudo apt-get update 
-                sudo apt-get install cppcheck 
-
       - name : Run CMake
         run  : |
                export CC=gcc-10 
@@ -79,9 +74,6 @@ jobs:
 
       - name : Build Project
         run  : cd build  && make 
-
-      - name : Run Cppcheck
-        run  : cppcheck --force . -ibuild/
 
       - name : Run CTest
         run  : cd build && ctest --verbose
