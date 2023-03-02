@@ -42,6 +42,9 @@ jobs:
       - name : Checkout code
         uses : actions/checkout@v2
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
       - name : Run CMake
         run  : |
                 mkdir build  
@@ -49,7 +52,7 @@ jobs:
                 cmake .. -DCMAKE_BUILD_TYPE=Debug 
 
       - name : Build Project
-        run  : cd build  && MSBuild.exe ALL_BUILD.sln 
+        run  : cd build  && msbuild.exe ALL_BUILD.sln 
 
       - name : Run CTest
         run  : cd build && ctest --verbose
