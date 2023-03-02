@@ -41,16 +41,16 @@ jobs:
     environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
     steps : 
       - name : Checkout code
-          uses : actions/checkout@v2
+        uses : actions/checkout@v2
 
-        - name : Run CMake
-          run  : |
+      - name : Run CMake
+        run  : |
                 mkdir build  
                 cd build 
                 cmake .. -DCMAKE_BUILD_TYPE=Debug 
 
-        - name : Build Project
-          run  : cd build  && make 
+      - name : Build Project
+        run  : cd build  && make 
 
-        - name : Run CTest
-          run  : cd build && ctest --verbose
+      - name : Run CTest
+        run  : cd build && ctest --verbose
