@@ -11,7 +11,7 @@ jobs:
     runs-on : ubuntu-latest
     steps:
       - name : Checkout code
-        uses : actions/checkout@v2
+        uses : actions/checkout@v3
 
       - name : Install Dependencies
         run  : |
@@ -40,7 +40,7 @@ jobs:
     runs-on : windows-latest
     steps : 
       - name : Checkout code
-        uses : actions/checkout@v2
+        uses : actions/checkout@v3
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
@@ -56,3 +56,32 @@ jobs:
 
       - name : Run CTest
         run  : cd build && ctest -C Debug --verbose
+
+  ubuntu-build:
+    name    : MacOS Build
+    runs-on : macos-latest
+    steps:
+      - name : Checkout code
+        uses : actions/checkout@v3
+
+      - name : Install Dependencies
+        run  : |
+                sudo apt-get update 
+                sudo apt-get install cppcheck 
+
+      - name : Run CMake
+        run  : |
+               export CC=gcc-10 
+               export CXX=g++-10 
+               mkdir build  
+               cd build 
+               cmake .. -DCMAKE_BUILD_TYPE=Debug 
+
+      - name : Build Project
+        run  : cd build  && make 
+
+      - name : Run Cppcheck
+        run  : cppcheck --force . -ibuild/
+
+      - name : Run CTest
+        run  : cd build && ctest --verbose
