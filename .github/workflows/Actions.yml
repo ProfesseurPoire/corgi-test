@@ -52,7 +52,7 @@ jobs:
                 cmake .. -DCMAKE_BUILD_TYPE=Debug 
 
       - name : Build Project
-        run  : cd build  && msbuild ALL_BUILD.sln 
+        run  : cd build  && msbuild ALL_BUILD.vcxproj
 
       - name : Run CTest
         run  : cd build && ctest --verbose
