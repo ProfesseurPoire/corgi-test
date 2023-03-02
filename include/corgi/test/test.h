@@ -473,6 +473,22 @@ inline void run_functions()
 
 struct benchmark
 {
+    benchmark(std::function<void()> first_function,
+              std::string           first_function_name,
+              std::function<void()> second_function,
+              std::string           second_function_name,
+              int                   repetition,
+              std::string           name)
+        : first_function(first_function)
+        , first_function_name(first_function_name)
+        , second_function(second_function)
+        , second_function_name(second_function_name)
+        , repetition(repetition)
+        , name(name)
+
+    {
+    }
+
     std::function<void()> first_function;
     std::string           first_function_name;
     std::function<void()> second_function;
