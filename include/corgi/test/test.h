@@ -490,9 +490,9 @@ inline void add_benchmark(std::string name,
                           void (*second_function)(),
                           const std::string& second_function_name)
 {
-    benchmarks.emplace_back(std::function<void()>(first_function), first_function_name,
-                            std::function<void()>(second_function), second_function_name,
-                            repetition, name);
+    benchmarks.push_back(benchmark(
+        std::function<void()>(first_function), first_function_name,
+        std::function<void()>(second_function), second_function_name, repetition, name));
 }
 
 inline void add_test(const std::string&    group_name,
