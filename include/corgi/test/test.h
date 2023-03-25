@@ -698,11 +698,46 @@ inline int run_all()
                                       __FILE__, __LINE__)
 
 /**
- * @brief Checks if @p statement throw an exception.
+ * @brief Checks if @p statement throws an exception of type @p type.
  *
  * If @p statement doesn't throw an exception, this check fails.
  */
-#define check_throw(statement)                                                 \
+#define check_throw(statement, type)                                           \
+    bool has_thrown = false;                                                   \
+    try                                                                        \
+    {                                                                          \
+        statement;                                                             \
+    }                                                                          \
+    catch(type)                                                                \
+    {                                                                          \
+        has_thrown = true;                                                     \
+    }                                                                          \
+    catch(...)                                                                 \
+    {                                                                          \
+    }                                                                          \
+    if(!has_thrown)                                                            \
+    {                                                                          \
+        corgi::test::detail::write_line("\n        ! Error : ",                \
+                                        corgi::test::detail::color::Red);      \
+        corgi::test::detail::write("            * file :     ",                \
+                                   corgi::test::detail::color::Cyan);          \
+        corgi::test::detail::write_line(__FILE__,                              \
+                                        corgi::test::detail::color::Yellow);   \
+        corgi::test::detail::write("            * line :     ",                \
+                                   corgi::test::detail::color::Cyan);          \
+        corgi::test::detail::write_line(std::to_string(__LINE__),              \
+                                        corgi::test::detail::color::Magenta);  \
+        corgi::test::detail::write("            * No exception was thrown \n", \
+                                   corgi::test::detail::color::Cyan);          \
+        corgi::test::detail::error += 1;                                       \
+    }
+
+/**
+ * @brief Checks if @p statement throws any exception.
+ *
+ * If @p statement doesn't throw an exception, this check fails.
+ */
+#define check_any_throw(statement)                                             \
     bool has_thrown = false;                                                   \
     try                                                                        \
     {                                                                          \

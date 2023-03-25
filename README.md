@@ -49,6 +49,7 @@ TEST(Vec3f, Vec3f)
     CHECK_EQ(u*v, Vec3f(1.0f, 4.0f, 9.0f));
 }
 ```
+
 Once we defined all our test, we just have one more thing to do. Call the corgi::test::run_all() function
 from our main. As the name implied, it'll run every test defined by the user.
 
@@ -59,6 +60,70 @@ from our main. As the name implied, it'll run every test defined by the user.
 int main(int argc, char** argv)
 {
     return corgi::test::run_all_()
+}
+```
+
+## Assertions
+
+### check_throw
+
+Checks that an exception of a specific **type** was thrown by **statement**.
+
+```cpp
+    check_throw(statement, type)
+```
+
+**Example :**
+
+```cpp
+static void throw_function()
+{
+    throw std::invalid_argument("hi");
+}
+
+TEST(check_exceptions, throw_exception)
+{
+    check_throw(throw_function(), std::invalid_argument);
+}
+```
+
+### check_any_throw
+
+Checks that an exception of any type was thrown by **statement**.
+
+```cpp
+check_any_throw(statement)
+```
+
+**Example :**
+
+```cpp
+static void throw_function()
+{
+    throw std::invalid_argument("hi");
+}
+TEST(check_exceptions, throw_any)
+{
+    check_any_throw(throw_function());
+}
+```
+
+### check_no_throw
+
+Checks that no exception was thrown by **statement**.
+
+```cpp
+    check_no_throw(statement)
+```
+
+**Example :**
+
+```cpp
+static void nothrow_function() {}
+
+TEST(check_exceptions, nothrow)
+{
+    check_no_throw(nothrow_function());
 }
 ```
 
