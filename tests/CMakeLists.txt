@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}
        test_fixture.cpp
        TestA.cpp 
        TestB.cpp
+       test_throw.cpp
        TestTime.cpp)
 
 if(MSVC)

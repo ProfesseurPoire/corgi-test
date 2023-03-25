@@ -47,7 +47,7 @@ BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializers: BeforeComma
 
-ColumnLimit: 90
+ColumnLimit: 80
 CompactNamespaces: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 Cpp11BracedListStyle: true
@@ -85,7 +85,7 @@ NamespaceIndentation: None
 
 PointerAlignment: Left
 
-ReflowComments: false
+ReflowComments: true
 
 SortIncludes: true
 SortUsingDeclarations: true
