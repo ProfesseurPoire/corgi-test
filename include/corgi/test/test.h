@@ -764,7 +764,7 @@ inline int run_all()
     {                                                                          \
         statement;                                                             \
     }                                                                          \
-    catch(type)                                                                \
+    catch(type&)                                                               \
     {                                                                          \
         has_thrown = true;                                                     \
     }                                                                          \
