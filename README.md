@@ -2,75 +2,110 @@
 
 ## Introduction
 
-corgi-test is a lightweight C++ header only library which add functionalities to help the user
-with testing and TDD. 
+corgi-test is a lightweight C++ header only testing library. It provides a set of features designed to facilitate testing applications, unit testing and benchmarking.
 
 ## How to Install
 
-Since it's a header only library, all you have to do is to copy the include directory and reference it
-inside your project by adding the path through your include_directory.
-If you're using CMake to build your project, you could also simply copy the repository inside your project and link 
-your project/executable with the corgi-test target
+Since it's a header only library, the simplest way to install it is to copy the test.h header file directly somewhere into your project and update the include path of the build system of your choice.
+
+If you're using CMake to build your project, you could also simply copy the repository inside your project and link your project/executable with the corgi-test target.
 
 ```cmake
-    target_link_libraries(your_project corgi-test)
+target_link_libraries(your_project corgi-test)
 ```
 
+You can also run cmake and then install the library (using for instance make install) and use the following command to find it in your cmake.
+
+```cmake
+find_package(corgi-test CONFIG)
+```
 
 ## How to use
 
-Use the TEST macro to create a new test. This macro takes 2 parameters. The first correspond to the group the test will belong too,
-and the second is the test's name. 
+First, we create a new file "main_test.cpp" that will contain the main function of our testing program. In the main function, we call the run_all() function that will run every testing function detected by the testing framework.
+
+>:page_facing_up:  main_test.cpp
 
 ```cpp
 #include <corgi/test/test.h>
-#include <corgi/math/Vec3f.h>
 
-TEST(Vec3f, Multiplication)
+int main()
 {
-
+    return corgi::test::run_all();
 }
 ```
 
-Then, simply write what you want your test to do. In our example, we want to make sure a multiplication between
-2 Vector of dimension 3 will output the correct result. In that end, we'll use the CHECK_EQ, CHECK_NE and CHECK macros. Theses macros
-takes one or two parameters and make sure the value correspond to what we expected. If not an error is registered
-by the testing framework that will be logged inside the terminal, telling you where and why the test failed. 
+Now, we create another file "test_math.cpp". This file will contain tests about our mathematic library.
+
+We start by include the deader to our library, and we use the TEST macro to declare a new test.
+
+The macro takes 2 parameters. The first one correspond to the group name, used to regroup tests that share a common theme, and the second one is the actual test name. 
 
 ```cpp
 #include <corgi/test/test.h>
-#include <corgi/math/Vec3f.h>
 
-TEST(Vec3f, Vec3f)
+float mult(float a, float b){ return a*b;}
+
+TEST(Math, Multiplication)
 {
-    Vec3f u(1.0f, 2.0f, 3.0f);
-    Vec3f u(1.0f, 2.0f, 3.0f);
+    const int a=2;
+    const int b=2;
 
-    CHECK_EQ(u*v, Vec3f(1.0f, 4.0f, 9.0f));
+    auto result = mult(a,b);
+
+    check_equal(result, 4);
 }
 ```
 
-Once we defined all our test, we just have one more thing to do. Call the corgi::test::run_all() function
-from our main. As the name implied, it'll run every test defined by the user.
+Inside the macro, we often want to do 3 things : Arrange, Act and Assert (AAA).
+* Arrange : Setting up data for testing
+* Act  : Perform an action.
+* Assert : Checking if the result of the action is what we expected.
+
+In our example, the Arrange correspond to the part where we declare the a and b variables. Act correspond to the part where we call the mult function. And the assert section correspond to the check_equal function.
+
+The check_equal function is an assertion that will pass if the first argument is equal to the second one. If an assertion isn't met, the test won't pass and it'll be logged.
+
+Note that check_equal isn't the only assertion available.
+
+This is what the console should display for our test example after we run the exectable.
 
 ```cpp
-
-#include<corgi/test/test.>
-
-int main(int argc, char** argv)
-{
-    return corgi::test::run_all_()
-}
++----------------------------------------------------------------------------+
+|    Running 1 tests grouped in Math                                         |
++----------------------------------------------------------------------------+
+  * Running Math.Multiplication (1/1)
+       Passed in 0.017000 ms
++----------------------------------------------------------------------------+
+|    Results                                                                 |
++----------------------------------------------------------------------------+
+    * Every test passed
 ```
 
 ## Assertions
+
+### check_equals
+
+The assertion pass if value1 is equals to value2
+
+```cpp
+check_equals(value1, value2)
+```
+
+### check_non_equals
+
+The assertion pass if value1 is not equals to value2
+
+```cpp
+check_non_equals(value1, value2)
+```
 
 ### check_throw
 
 Checks that an exception of a specific **type** was thrown by **statement**.
 
 ```cpp
-    check_throw(statement, type)
+check_throw(statement, type)
 ```
 
 **Example :**
@@ -126,8 +161,3 @@ TEST(check_exceptions, nothrow)
     check_no_throw(nothrow_function());
 }
 ```
-
-## Examples
-
-- See the test project inside the repo
-

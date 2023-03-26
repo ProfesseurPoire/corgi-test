@@ -262,21 +262,71 @@ void assert_that_(T             val,
         log_test_error(val, value, expected, file, line);
 }
 
+template<class T>
+void check_equals_(T val1, T val2, const char* file, int line)
+{
+    if(val1 != val2)
+    {
+        write_line("        ! Error : ", color::Red);
+        write("            * file :     ", color::Cyan);
+        write_line(file, color::Yellow);
+        write("            * line :     ", color::Cyan);
+        write_line(std::to_string(line), color::Magenta);
+        write("            * Check equals \n", color::Cyan);
+        write("                * val1 : ", color::Cyan);
+        std::stringstream ss;
+        ss << val1;
+        write_line(ss.str(), color::Magenta);
+
+        write("                * val2  : ", color::Cyan);
+        std::stringstream ss2;
+        ss2 << val2;
+        write_line(ss2.str(), color::Magenta);
+
+        error += 1;
+    }
+}
+
+template<class T>
+void check_non_equals_(T val1, T val2, const char* file, int line)
+{
+    if(val1 == val2)
+    {
+        write_line("        ! Error : ", color::Red);
+        write("            * file :     ", color::Cyan);
+        write_line(file, color::Yellow);
+        write("            * line :     ", color::Cyan);
+        write_line(std::to_string(line), color::Magenta);
+        write("            * Check non equals \n", color::Cyan);
+        write("                * val1 : ", color::Cyan);
+        std::stringstream ss;
+        ss << val1;
+        write_line(ss.str(), color::Magenta);
+
+        write("                * val2  : ", color::Cyan);
+        std::stringstream ss2;
+        ss2 << val2;
+        write_line(ss2.str(), color::Magenta);
+
+        error += 1;
+    }
+}
+
 /*!
  * @brief      Register a test function
  *  Called by the TEST macro.  The TEST macro declares a function
  *  that will be named from the combination of the @ref group_name and @ref
  *  function_name parameters.
  *  Then, it will create a unique variable whose only goal is to call
- *  the register_function with a pointer to the previously declared function,
- * along with the function name and the group (parameters of the TEST macro)
- *  Finally, it will start the function definition.
+ *  the register_function with a pointer to the previously declared
+ * function, along with the function name and the group (parameters of the
+ * TEST macro) Finally, it will start the function definition.
  *  @param func             Pointer to the test function created by the TEST
  * macro
- *  @param group_name       First parameter of the TEST macro. Correspond to the
- * group in which the function belong
- *  @param function_name    Second parameter of the TEST macro. Correspond to
- * the function name.
+ *  @param group_name       First parameter of the TEST macro. Correspond to
+ * the group in which the function belong
+ *  @param function_name    Second parameter of the TEST macro. Correspond
+ * to the function name.
  */
 inline int register_function(void (*func_ptr)(),
                              const string& function,
@@ -696,6 +746,12 @@ inline int run_all()
 #define assert_that(value, expected)                                      \
     corgi::test::detail::assert_that_(value, expected, #value, #expected, \
                                       __FILE__, __LINE__)
+
+#define check_equals(value1, value2) \
+    corgi::test::detail::check_equals_(value1, value2, __FILE__, __LINE__)
+
+#define check_non_equals(value1, value2) \
+    corgi::test::detail::check_non_equals_(value1, value2, __FILE__, __LINE__)
 
 /**
  * @brief Checks if @p statement throws an exception of type @p type.
