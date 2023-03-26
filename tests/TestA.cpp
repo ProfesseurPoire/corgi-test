@@ -2,19 +2,19 @@
 
 using namespace corgi::test;
 
-TEST(TestA,Check)
+TEST(TestA, Check)
 {
     assert_that(true, corgi::test::equals(true));
 }
 
-TEST(TestA,CheckEquals)
+TEST(TestA, CheckEquals)
 {
-    int val = 10;
-
     assert_that(true, corgi::test::equals(true));
+    check_equals(true, true);
 }
 
-TEST(TestA,CheckNonEquals)
+TEST(TestA, CheckNonEquals)
 {
     assert_that(10, corgi::test::non_equals(5));
+    check_non_equals(true, false);
 }
