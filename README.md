@@ -1,7 +1,5 @@
 # corgi-test
 
-## Introduction
-
 corgi-test is a lightweight C++ header only testing library. It provides a set of features designed to facilitate testing applications, unit testing and benchmarking.
 
 ## How to Install
@@ -68,7 +66,7 @@ The check_equal function is an assertion that will pass if the first argument is
 
 Note that check_equal isn't the only assertion available.
 
-This is what the console should display for our test example after we run the exectable.
+This is what the console should display for our test example after we run the executable.
 
 ```cpp
 +----------------------------------------------------------------------------+
