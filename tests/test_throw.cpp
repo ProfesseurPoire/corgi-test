@@ -16,6 +16,7 @@ TEST(check_exceptions, nothrow)
 TEST(check_exceptions, throw_exception)
 {
     check_throw(throw_function(), std::invalid_argument);
+    check_throw(throw_function(), std::invalid_argument);
 }
 
 TEST(check_exceptions, throw_any)

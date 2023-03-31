@@ -758,34 +758,38 @@ inline int run_all()
  *
  * If @p statement doesn't throw an exception, this check fails.
  */
-#define check_throw(statement, type)                                           \
-    bool has_thrown = false;                                                   \
-    try                                                                        \
-    {                                                                          \
-        statement;                                                             \
-    }                                                                          \
-    catch(type&)                                                               \
-    {                                                                          \
-        has_thrown = true;                                                     \
-    }                                                                          \
-    catch(...)                                                                 \
-    {                                                                          \
-    }                                                                          \
-    if(!has_thrown)                                                            \
-    {                                                                          \
-        corgi::test::detail::write_line("\n        ! Error : ",                \
-                                        corgi::test::detail::color::Red);      \
-        corgi::test::detail::write("            * file :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(__FILE__,                              \
-                                        corgi::test::detail::color::Yellow);   \
-        corgi::test::detail::write("            * line :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(std::to_string(__LINE__),              \
-                                        corgi::test::detail::color::Magenta);  \
-        corgi::test::detail::write("            * No exception was thrown \n", \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::error += 1;                                       \
+#define check_throw(statement, type)                                          \
+    {                                                                         \
+        bool has_thrown = false;                                              \
+        try                                                                   \
+        {                                                                     \
+            statement;                                                        \
+        }                                                                     \
+        catch(type&)                                                          \
+        {                                                                     \
+            has_thrown = true;                                                \
+        }                                                                     \
+        catch(...)                                                            \
+        {                                                                     \
+        }                                                                     \
+        if(!has_thrown)                                                       \
+        {                                                                     \
+            corgi::test::detail::write_line("\n        ! Error : ",           \
+                                            corgi::test::detail::color::Red); \
+            corgi::test::detail::write("            * file :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                __FILE__, corgi::test::detail::color::Yellow);                \
+            corgi::test::detail::write("            * line :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                std::to_string(__LINE__),                                     \
+                corgi::test::detail::color::Magenta);                         \
+            corgi::test::detail::write(                                       \
+                "            * No exception was thrown \n",                   \
+                corgi::test::detail::color::Cyan);                            \
+            corgi::test::detail::error += 1;                                  \
+        }                                                                     \
     }
 
 /**
@@ -793,31 +797,35 @@ inline int run_all()
  *
  * If @p statement doesn't throw an exception, this check fails.
  */
-#define check_any_throw(statement)                                             \
-    bool has_thrown = false;                                                   \
-    try                                                                        \
-    {                                                                          \
-        statement;                                                             \
-    }                                                                          \
-    catch(...)                                                                 \
-    {                                                                          \
-        has_thrown = true;                                                     \
-    }                                                                          \
-    if(!has_thrown)                                                            \
-    {                                                                          \
-        corgi::test::detail::write_line("\n        ! Error : ",                \
-                                        corgi::test::detail::color::Red);      \
-        corgi::test::detail::write("            * file :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(__FILE__,                              \
-                                        corgi::test::detail::color::Yellow);   \
-        corgi::test::detail::write("            * line :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(std::to_string(__LINE__),              \
-                                        corgi::test::detail::color::Magenta);  \
-        corgi::test::detail::write("            * No exception was thrown \n", \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::error += 1;                                       \
+#define check_any_throw(statement)                                            \
+    {                                                                         \
+        bool has_thrown = false;                                              \
+        try                                                                   \
+        {                                                                     \
+            statement;                                                        \
+        }                                                                     \
+        catch(...)                                                            \
+        {                                                                     \
+            has_thrown = true;                                                \
+        }                                                                     \
+        if(!has_thrown)                                                       \
+        {                                                                     \
+            corgi::test::detail::write_line("\n        ! Error : ",           \
+                                            corgi::test::detail::color::Red); \
+            corgi::test::detail::write("            * file :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                __FILE__, corgi::test::detail::color::Yellow);                \
+            corgi::test::detail::write("            * line :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                std::to_string(__LINE__),                                     \
+                corgi::test::detail::color::Magenta);                         \
+            corgi::test::detail::write(                                       \
+                "            * No exception was thrown \n",                   \
+                corgi::test::detail::color::Cyan);                            \
+            corgi::test::detail::error += 1;                                  \
+        }                                                                     \
     }
 
 /**
@@ -825,31 +833,36 @@ inline int run_all()
  *
  * If @p statement throw an exception the check fails.
  */
-#define check_no_throw(statement)                                              \
-    bool has_thrown = false;                                                   \
-    try                                                                        \
-    {                                                                          \
-        statement;                                                             \
-    }                                                                          \
-    catch(...)                                                                 \
-    {                                                                          \
-        has_thrown = true;                                                     \
-    }                                                                          \
-    if(has_thrown)                                                             \
-    {                                                                          \
-        corgi::test::detail::write_line("\n        ! Error : ",                \
-                                        corgi::test::detail::color::Red);      \
-        corgi::test::detail::write("            * file :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(__FILE__,                              \
-                                        corgi::test::detail::color::Yellow);   \
-        corgi::test::detail::write("            * line :     ",                \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::write_line(std::to_string(__LINE__),              \
-                                        corgi::test::detail::color::Magenta);  \
-        corgi::test::detail::write("            * An exception was thrown \n", \
-                                   corgi::test::detail::color::Cyan);          \
-        corgi::test::detail::error += 1;                                       \
+#define check_no_throw(statement)                                             \
+    {                                                                         \
+        bool has_thrown = false;                                              \
+        try                                                                   \
+        {                                                                     \
+            statement;                                                        \
+        }                                                                     \
+        catch(...)                                                            \
+        {                                                                     \
+            has_thrown = true;                                                \
+        }                                                                     \
+        if(has_thrown)                                                        \
+        {                                                                     \
+            corgi::test::detail::write_line("\n        ! Error : ",           \
+                                            corgi::test::detail::color::Red); \
+            corgi::test::detail::write("            * file :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                __FILE__, corgi::test::detail::color::Yellow);                \
+            corgi::test::detail::write("            * line :     ",           \
+                                       corgi::test::detail::color::Cyan);     \
+            corgi::test::detail::write_line(                                  \
+                std::to_string(__LINE__),                                     \
+                corgi::test::detail::color::Magenta);                         \
+            corgi::test::detail::write(                                       \
+                "            * An exception was thrown \n",                   \
+                corgi::test::detail::color::Cyan);                            \
+            corgi::test::detail::error += 1;                                  \
+        }                                                                     \
     }
+// namespace test
 }    // namespace test
 }    // namespace corgi
