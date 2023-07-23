@@ -828,6 +828,16 @@ inline int run_all()
         }                                                                     \
     }
 
+#define check_true(statement)                       \
+    {                                               \
+        assert_that(statement, test::equals(true)); \
+    }
+
+#define check_false(statement)                       \
+    {                                                \
+        assert_that(statement, test::equals(false)); \
+    }
+
 /**
  * @brief Checks that @p statement doesn't throw an exception.
  *
